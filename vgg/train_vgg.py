@@ -3,6 +3,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D
 from keras.layers.normalization import BatchNormalization
 from keras.metrics import AUC
+from keras.callbacks import ModelCheckpoint
 
 class MyVGGNet():
     def __init__(self,input_shape,n_classes,dropout,epochs,x_train,y_train,x_test,y_test,verbose=1,batch_size=128):
@@ -72,9 +73,15 @@ class MyVGGNet():
 
     def train(self):
 
+        check = ModelCheckpoint(filepath='vgg/saved_model/weights.hdf5',save_best_only=True,mode='max',monitor='val_auc_3')
+
         ## instantiation and training the model
         model = self._define_model()
         model.fit(self.x_train,self.y_train,
                 batch_size=self.batch_size, epochs=self.epochs,
                 verbose=self.verbose,
-                validation_data=(self.x_test,self.y_test))
+                validation_data=(self.x_test,self.y_test),
+                callbacks=[check])
+
+        with open('vgg/saved_model/model.json','w') as file:
+            file.write(model.to_json())

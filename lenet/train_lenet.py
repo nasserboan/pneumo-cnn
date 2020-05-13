@@ -6,8 +6,8 @@
 from keras import Sequential
 from keras.layers import Dense, Dropout
 from keras.layers import Flatten, Conv2D, MaxPooling2D
-from keras.callbacks import ReduceLROnPlateau, EarlyStopping
-from keras.metrics import FalseNegatives, TrueNegatives, TruePositives, FalsePositives, AUC
+from keras.callbacks import ModelCheckpoint
+from keras.metrics import AUC
 
 
 import subprocess
@@ -51,7 +51,7 @@ class MyLeNet():
         model.add(Dense(128,activation='relu'))
 
         ## more dropout for preventing overfitting
-        model.add(Dropout(self.dropout*2))
+        model.add(Dropout(self.dropout))
 
         ## final layer
         if self.n_classes <= 2:
@@ -68,24 +68,17 @@ class MyLeNet():
 
     def train(self):
 
-        # early_call = EarlyStopping(monitor='val_accuracy',
-        #                            patience=round(self.epochs),
-        #                            restore_best_weights=True,
-        #                            verbose=1)
+        check = ModelCheckpoint(filepath='lenet/saved_model/weights.hdf5',save_best_only=True,mode='max',monitor='val_auc_1')
 
-        # reduce_call = ReduceLROnPlateau(monitor='val_loss',
-        #                            factor = 0.1,
-        #                            patience=round(self.epochs/10),
-        #                            min_lr=0.0001,
-        #                            verbose=1)
-
-        ## instantiation and training the model
         model = self._define_model()
         model.fit(self.x_train,self.y_train,
                 batch_size=self.batch_size, epochs=self.epochs,
                 verbose=self.verbose,
-                validation_data=(self.x_test,self.y_test))#,
-                #callbacks=[early_call])
+                validation_data=(self.x_test,self.y_test),
+                callbacks=[check])
+
+        with open('lenet/saved_model/model.json','w') as file:
+            file.write(model.to_json())
 
 # from keras import backend as k
 # k.tensorflow_backend._get_available_gpus()
