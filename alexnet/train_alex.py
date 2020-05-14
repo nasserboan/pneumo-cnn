@@ -2,8 +2,8 @@
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D
 from keras.layers.normalization import BatchNormalization
-from keras.metrics import AUC
-from keras.callbacks import ModelCheckpoint
+from keras.metrics import AUC, FalseNegatives
+from keras.callbacks import ModelCheckpoint, EarlyStopping
 
 class MyAlexNet():
     def __init__(self,input_shape,n_classes,dropout,epochs,x_train,y_train,x_test,y_test,verbose=1,batch_size=128):
@@ -48,10 +48,10 @@ class MyAlexNet():
         ## final layer
         if self.n_classes <= 2:
             model.add(Dense(self.n_classes,activation='sigmoid'))
-            model.compile(loss='binary_crossentropy', optimizer='adam', metrics=[AUC()])
+            model.compile(loss='binary_crossentropy', optimizer='adam', metrics=[AUC(),FalseNegatives()])
         else:
             model.add(Dense(self.n_classes,activation='softmax'))
-            model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=[AUC()])
+            model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=[AUC(),FalseNegatives()])
         
         print(model.summary())
 
@@ -59,17 +59,22 @@ class MyAlexNet():
 
     def train(self):
 
-        check = ModelCheckpoint(filepath='alexnet/saved_model/weights.hdf5',save_best_only=True,mode='max',monitor='val_auc_2')
+        check = ModelCheckpoint(filepath='alexnet/saved_model/weights.hdf5',save_best_only=True,mode='min',monitor='false_negatives_1')
+        early = EarlyStopping(monitor='false_negatives_1',restore_best_weights=True,patience=self.epochs)
 
         ## instantiation and training the model
         model = self._define_model()
         model.fit(self.x_train,self.y_train,
-                batch_size=self.batch_size, epochs=self.epochs,
+                batch_size=self.batch_size, 
+                epochs=self.epochs,
                 verbose=self.verbose,
-                validation_data=(self.x_test,self.y_test),callbacks=[check])
+                validation_data=(self.x_test,self.y_test),
+                callbacks=[check,early])
         
         with open('alexnet/saved_model/model.json','w') as file:
             file.write(model.to_json())
+
+        return model
 
 
 
