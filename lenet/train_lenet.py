@@ -39,10 +39,10 @@ class MyLeNet():
         ## final layer
         if self.n_classes <= 2:
             model.add(Dense(self.n_classes,activation='sigmoid'))
-            model.compile(loss='binary_crossentropy', optimizer='adam', metrics=[AUC(),FalseNegatives(),FalsePositives(),TruePositives(),TrueNegatives()])
+            model.compile(loss='binary_crossentropy', optimizer='adam', metrics=[AUC(),FalseNegatives(),FalsePositives(),TruePositives(),TrueNegatives(),'accuracy'])
         else:
             model.add(Dense(self.n_classes,activation='softmax'))
-            model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=[AUC(),FalseNegatives()])
+            model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=[AUC(),FalseNegatives(),'accuracy'])
         
 
         print(model.summary())
