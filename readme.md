@@ -39,15 +39,23 @@ A classe DataLoader também é capaz de controlar a quantidade de imagens carreg
 
 Resultados:
 
+![lenet5_results](lenet/lenet_train.png)
+
 ## AlexNet
 
-![lenet5](images/lenet5.png)
+![alex](images/alex.png)
 
 Resultados:
 
+![alexnet_result](alexnet/alexnet_train.png)
+
 ## VGG
 
+![vgg](images/vgg.png)
 
+Resultados:
+
+![vgg](vgg/vgg_train.png)
 
 # Referências
 

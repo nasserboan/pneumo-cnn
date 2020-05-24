@@ -1,11 +1,11 @@
 from keras import Sequential
 from keras.layers import Dense, Dropout
 from keras.layers import Flatten, Conv2D, MaxPooling2D
+from keras.metrics import AUC, FalseNegatives, FalsePositives, TrueNegatives, TruePositives
 from keras.callbacks import ModelCheckpoint, EarlyStopping
-from keras.metrics import AUC, FalseNegatives
 
 
-import subprocess
+
 
 class MyLeNet():
     def __init__(self,input_shape,n_classes,dropout,epochs,x_train,y_train,x_test,y_test,verbose=1,batch_size=128):
@@ -39,7 +39,7 @@ class MyLeNet():
         ## final layer
         if self.n_classes <= 2:
             model.add(Dense(self.n_classes,activation='sigmoid'))
-            model.compile(loss='binary_crossentropy', optimizer='adam', metrics=[AUC(),FalseNegatives()])
+            model.compile(loss='binary_crossentropy', optimizer='adam', metrics=[AUC(),FalseNegatives(),FalsePositives(),TruePositives(),TrueNegatives()])
         else:
             model.add(Dense(self.n_classes,activation='softmax'))
             model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=[AUC(),FalseNegatives()])
@@ -52,14 +52,13 @@ class MyLeNet():
     def train(self):
 
         check = ModelCheckpoint(filepath='lenet/saved_model/weights.hdf5',save_best_only=True,mode='min',monitor='false_negatives_1')
-        early = EarlyStopping(monitor='false_negatives_1',restore_best_weights=True,patience=self.epochs)
-
+        
         model = self._define_model()
         model.fit(self.x_train,self.y_train,
                 batch_size=self.batch_size, epochs=self.epochs,
                 verbose=self.verbose,
                 validation_data=(self.x_test,self.y_test),
-                callbacks=[check,early])
+                callbacks=[check])
 
         with open('lenet/saved_model/model.json','w') as file:
             file.write(model.to_json())

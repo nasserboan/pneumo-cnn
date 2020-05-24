@@ -2,7 +2,7 @@
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D
 from keras.layers.normalization import BatchNormalization
-from keras.metrics import AUC, FalseNegatives
+from keras.metrics import AUC, FalseNegatives, FalsePositives, TrueNegatives, TruePositives
 from keras.callbacks import ModelCheckpoint, EarlyStopping
 
 class MyAlexNet():
@@ -48,7 +48,7 @@ class MyAlexNet():
         ## final layer
         if self.n_classes <= 2:
             model.add(Dense(self.n_classes,activation='sigmoid'))
-            model.compile(loss='binary_crossentropy', optimizer='adam', metrics=[AUC(),FalseNegatives()])
+            model.compile(loss='binary_crossentropy', optimizer='adam', metrics=[AUC(),FalseNegatives(),FalsePositives(),TruePositives(),TrueNegatives()])
         else:
             model.add(Dense(self.n_classes,activation='softmax'))
             model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=[AUC(),FalseNegatives()])
